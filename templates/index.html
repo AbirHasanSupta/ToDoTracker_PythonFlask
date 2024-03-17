@@ -1,0 +1,30 @@
+{% include "header.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+    <div class="container col-xl-10 col-xxl-8 px-4 py-5">
+    <div class="row align-items-center g-lg-5 py-5">
+      <div class="col-lg-7 text-center text-lg-start">
+        <h1 class="display-4 fw-bold lh-1 text-body-emphasis mb-3">Welcome to TodoTracker, your ultimate tool for staying organized and on top of your tasks.</h1>
+        <p class="col-lg-10 fs-4">
+            TodoTracker is more than just a to-do list app—it's your personal productivity assistant. Join thousands of users who have already simplified their lives and achieved their goals with TodoTracker.
+
+Start conquering your to-do list today with TodoTracker. Sign up now and take the first step towards a more organized and productive you.
+        </p>
+      </div>
+      <div class="col-md-10 mx-auto col-lg-5">
+          <h1>Register Now!</h1>
+        {{ render_form(form) }}
+          {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <p class="flash" style="color:red">{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+      </div>
+    </div>
+  </div>
+
+
+{% include "footer.html" %}
+    

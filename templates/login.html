@@ -1,0 +1,20 @@
+{% include "header.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+<div class="container my-5 py-5">
+<div class="col-md-10 mx-auto col-lg-5">
+    <h2> Log in to begin using ToDoTracker.</h2>
+</div>
+    <br>
+<div class="col-md-10 mx-auto col-lg-5">
+    {{ render_form(form) }}
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <p class="flash" style="color:red">{{ message }}</p>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+</div>
+{% include "footer.html" %}

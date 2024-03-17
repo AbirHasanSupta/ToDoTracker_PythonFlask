@@ -1,0 +1,61 @@
+{% include "header.html" %}
+{% from 'bootstrap5/form.html' import render_form %}
+<div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center">
+  <div class="list-group">
+      <div><h2>Create Your Todo List Now!</h2></div>
+      <br>
+        <div>{{ render_form(form) }}</div>
+  </div>
+
+</div>
+
+<div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-1 align-items-center justify-content-center">
+  <div class="list-group">
+      <div>
+
+          <hr>
+          <h3>Today's Date is {{date}}</h3>
+          <hr>
+          <br>
+          <h2>Your ToDo List</h2>
+
+      </div>
+        <div class="ui segment ui big header py-4 mb-3" style="background: #8b6d5a">
+            <ol class="ui big header" >
+                {% for todo in user_todo[::-1]: %}
+                {% if todo.date >= date%}
+                <li  class="ui segment" style="background: rgba(255, 255, 255, .5)">
+                    <strong>{{ todo.title }} (Due: {{todo.date}})
+                        <a class="ui blue button" href="{{url_for('complete', id=todo.id)}}" style="color:white" >  Update  </a>
+                        <a class="ui red button" href="{{url_for('delete', id=todo.id)}}" style="color:white" >  Delete  </a>
+                    </strong>
+                    <p>
+                    {% if todo.complete == False%}
+                        <span class="ui gray label">Not Complete</span>
+                        {% else %}
+                        <span class="ui green label">Completed</span>
+                    {% endif %}
+                    </p>
+                </li>
+                {% else %}
+                <li  class="ui segment" style="background: rgba(0, 0, 0, .4)"><strike>{{ todo.title }} (Due: {{todo.date}}) </strike>
+                    <a class="ui blue button" href="{{url_for('complete', id=todo.id)}}" style="color:white" >  Update  </a>
+                    <a  class="ui red button" href="{{url_for('delete', id=todo.id)}}" style="color:white">  Delete  </a>
+                    <p>
+                    {% if todo.complete == False%}
+                        <span class="ui gray label">Not Complete</span>
+                        {% else %}
+                        <span class="ui green label">Completed</span>
+                    {% endif %}
+                    </p>
+                </li>
+                {% endif %}
+                {%endfor%}
+            </ol>
+        </div>
+
+  </div>
+
+</div>
+
+{% include "footer.html" %}
