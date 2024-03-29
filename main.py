@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, flash, abort
+from flask import Flask, render_template, redirect, url_for, flash, abort, request
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask_bootstrap import Bootstrap5
@@ -74,6 +74,10 @@ with app.app_context():
     db.create_all()
 
 
+date_today = datetime.now()
+date_formatted = date_today.strftime('%Y-%m-%d')
+
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     register_form = RegisterForm()
@@ -95,7 +99,7 @@ def home():
         login_user(new_user)
         return redirect(url_for('todo'))
 
-    return render_template('index.html', form=register_form, current_user=current_user)
+    return render_template('index.html', form=register_form, current_user=current_user, date=date_formatted)
 
 
 @app.route('/login', methods=["GET", "POST"])
@@ -107,7 +111,7 @@ def login():
         if user:
             if check_password_hash(user.password, password):
                 login_user(user)
-                return redirect(url_for('todo'))
+                return redirect(url_for('home'))
             else:
                 flash("Password Incorrect, Try again!")
                 return redirect(url_for('login'))
@@ -121,8 +125,6 @@ def login():
 @app.route('/todo', methods=["POST", "GET"])
 @login_required
 def todo():
-    date_today = datetime.now()
-    date_formatted = date_today.strftime('%Y-%m-%d')
     form = ToDo()
     if form.validate_on_submit():
         new_todo = List(
@@ -136,7 +138,6 @@ def todo():
         db.session.commit()
         return redirect(url_for('todo'))
     user_todo = current_user.todos
-
     return render_template('todo.html', current_user=current_user, form=form,
                            user_todo=user_todo, date=date_formatted)
 
@@ -155,16 +156,21 @@ def about():
 @app.route('/delete/<int:id>')
 @login_required
 def delete(id):
+    redirect_to = request.args.get("redirect_to", 'home')
     delete_todo = db.get_or_404(List, id)
     if current_user.id == delete_todo.author_id:
         db.session.delete(delete_todo)
         db.session.commit()
-    return redirect(url_for('todo'))
+        if redirect_to == "todo":
+            return redirect(url_for('todo'))
+        else:
+            return redirect(url_for("home"))
 
 
 @app.route("/description/<int:id>", methods=["GET", "POST"])
 @login_required
 def expand(id):
+    redirect_to = request.args.get("redirect_to", "home")
     expand_todo = db.get_or_404(List, id)
     date = datetime.strptime(expand_todo.date, '%Y-%m-%d')
     form = ToDo(
@@ -179,21 +185,29 @@ def expand(id):
             expand_todo.description = form.description.data
             expand_todo.date = form.date.data
             db.session.commit()
-            return redirect(url_for("todo"))
+            if redirect_to == "todo":
+                return redirect(url_for('todo'))
+            else:
+                return redirect(url_for("home"))
+
     else:
         return abort(403, "You are not allowed to access this resource.")
 
     return render_template("description.html", form=form)
 
 
-@app.route('/complete/<int:id>')
+@app.route('/complete/<int:id>', methods=["GET"])
 @login_required
 def complete(id):
+    redirect_to = request.args.get("redirect_to", 'home')
     complete_todo = db.get_or_404(List, id)
     if current_user.id == complete_todo.author_id:
         complete_todo.complete = not complete_todo.complete
         db.session.commit()
-        return redirect(url_for('todo'))
+        if redirect_to == "todo":
+            return redirect(url_for('todo'))
+        else:
+            return redirect(url_for("home"))
     else:
         return abort(403, "You are not allowed to access this resource.")
 

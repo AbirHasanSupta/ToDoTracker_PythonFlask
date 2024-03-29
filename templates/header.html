@@ -28,13 +28,15 @@
         <li><a href="{{url_for('todo')}}" class="nav-link px-2">ToDo List</a></li>
         {% endif %}
         <li><a href="{{url_for('about')}}" class="nav-link px-2">About Us</a></li>
-      </ul>
+        <li class="nav-link px-2">{{current_user.name}}</li>
+      </ul >
 
       <div class="col-md-3 text-end">
         {% if not current_user.is_authenticated: %}
         <a class="btn btn-outline-primary me-2" href="{{url_for('login')}}">Login</a>
         {% else: %}
         <a class="btn btn-outline-primary me-2" href="{{url_for('logout')}}">Logout</a>
+
         {% endif %}
       </div>
     </header>
