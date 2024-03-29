@@ -4,7 +4,8 @@
   <div class="list-group">
       <div><h2>Create Your Todo List Now!</h2></div>
       <br>
-        <div>{{ render_form(form) }}</div>
+        <div>{{ ckeditor.load() }}
+            {{ render_form(form) }}</div>
   </div>
 
 </div>
@@ -26,27 +27,32 @@
                 {% if todo.date >= date%}
                 <li  class="ui segment" style="background: rgba(255, 255, 255, .5)">
                     <strong>{{ todo.title }} (Due: {{todo.date}})
-                        <a class="ui blue button" href="{{url_for('complete', id=todo.id)}}" style="color:white" >  Update  </a>
-                        <a class="ui red button" href="{{url_for('delete', id=todo.id)}}" style="color:white" >  Delete  </a>
+
+                        <a  class="btn btn-secondary " href="{{url_for('expand', id=todo.id)}}" >  Expand & Edit  </a>
+                        <a class="btn btn-danger" href="{{url_for('delete', id=todo.id)}}"  >  Delete  </a>
                     </strong>
                     <p>
                     {% if todo.complete == False%}
-                        <span class="ui gray label">Not Complete</span>
+                        <span class="ui gray label mt-1 ">Not Complete</span>
                         {% else %}
-                        <span class="ui green label">Completed</span>
+                        <span class="ui green label mt-1">Completed</span>
                     {% endif %}
+                        <a class="btn btn-primary mt-1 mx-3" href="{{url_for('complete', id=todo.id)}}"  >  Toggle Completion Status  </a>
                     </p>
                 </li>
                 {% else %}
                 <li  class="ui segment" style="background: rgba(0, 0, 0, .4)"><strike>{{ todo.title }} (Due: {{todo.date}}) </strike>
-                    <a class="ui blue button" href="{{url_for('complete', id=todo.id)}}" style="color:white" >  Update  </a>
-                    <a  class="ui red button" href="{{url_for('delete', id=todo.id)}}" style="color:white">  Delete  </a>
+                    <a class="btn btn-secondary mt-1" href="{{url_for('expand', id=todo.id)}}" >  Expand & Edit  </a>
+                    <a  class="btn btn-danger" href="{{url_for('delete', id=todo.id)}}">  Delete  </a>
+
                     <p>
                     {% if todo.complete == False%}
-                        <span class="ui gray label">Not Complete</span>
+                        <span class="ui gray label mt-1">Not Complete</span>
                         {% else %}
-                        <span class="ui green label">Completed</span>
+                        <span class="ui green label mt-1">Completed</span>
                     {% endif %}
+                        <a class="btn btn-primary mt-1 mx-3" href="{{url_for('complete', id=todo.id)}}"  >  Toggle Completion Status  </a>
+
                     </p>
                 </li>
                 {% endif %}

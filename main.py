@@ -8,6 +8,8 @@ from wtforms.validators import DataRequired
 from flask_login import login_required, UserMixin, login_user, LoginManager, current_user, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from flask_ckeditor import CKEditorField,CKEditor
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'blabla'
 Bootstrap5(app)
@@ -15,6 +17,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///users.db'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+ckeditor = CKEditor(app)
 
 
 @login_manager.user_loader
@@ -39,6 +43,7 @@ class List(db.Model):
     __tablename__ = 'lists'
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(250), nullable=False)
+    description = db.Column(db.String, nullable=False)
     date = db.Column(db.String(250), nullable=False)
     complete = db.Column(db.Boolean)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -60,6 +65,7 @@ class RegisterForm(FlaskForm):
 
 class ToDo(FlaskForm):
     title = StringField("Title", validators=[DataRequired()])
+    description = CKEditorField("Description", validators=[DataRequired()])
     date = DateField("Due Date", format='%Y-%m-%d', validators=[DataRequired()])
     submit = SubmitField("Add", validators=[DataRequired()])
 
@@ -121,6 +127,7 @@ def todo():
     if form.validate_on_submit():
         new_todo = List(
             title=form.title.data,
+            description=form.description.data,
             date=form.date.data,
             complete=False,
             author=current_user
@@ -155,6 +162,30 @@ def delete(id):
     return redirect(url_for('todo'))
 
 
+@app.route("/description/<int:id>", methods=["GET", "POST"])
+@login_required
+def expand(id):
+    expand_todo = db.get_or_404(List, id)
+    date = datetime.strptime(expand_todo.date, '%Y-%m-%d')
+    form = ToDo(
+        title=expand_todo.title,
+        description=expand_todo.description,
+        date=date
+    )
+
+    if current_user.id == expand_todo.author_id:
+        if form.validate_on_submit():
+            expand_todo.title = form.title.data
+            expand_todo.description = form.description.data
+            expand_todo.date = form.date.data
+            db.session.commit()
+            return redirect(url_for("todo"))
+    else:
+        return abort(403, "You are not allowed to access this resource.")
+
+    return render_template("description.html", form=form)
+
+
 @app.route('/complete/<int:id>')
 @login_required
 def complete(id):
@@ -169,4 +200,4 @@ def complete(id):
 
 if __name__ == '__main__':
 
-    app.run(debug=True, port=5002)
+    app.run(debug=True, port=5000)
